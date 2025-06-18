@@ -1,29 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 export default function Home() {
   const [password, setPassword] = useState('');
   const [pairings, setPairings] = useState('');
   const [status, setStatus] = useState('');
-  const [list, setList] = useState([]);
   const [deletePassword, setDeletePassword] = useState('');
-
-  useEffect(() => {
-    fetchPairings();
-  }, []);
-
-  const fetchPairings = async () => {
-    try {
-      const res = await fetch('/api/pairings');
-      const data = await res.json();
-      if (data.allowed_pairings) {
-        setList(data.allowed_pairings);
-      } else {
-        setStatus('⚠️ Tidak ada daftar pairing.');
-      }
-    } catch (err) {
-      setStatus('⚠️ Gagal mengambil daftar pairing.');
-    }
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -39,46 +20,39 @@ export default function Home() {
     const data = await res.json();
     setStatus(data.message || 'Success!');
     setPairings('');
-    fetchPairings();
-  };
-
-  const handleDelete = async (number) => {
-    const confirm = window.confirm(`Hapus nomor ${number}?`);
-    if (!confirm) return;
-    const res = await fetch('/api/delete', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        pairing: number,
-        password: deletePassword
-      }),
-    });
-    const data = await res.json();
-    setStatus(data.message);
-    fetchPairings();
   };
 
   return (
     <main style={{ maxWidth: 400, margin: '30px auto', fontFamily: 'Arial' }}>
       <h1 style={{ textAlign: 'center', color: '#0070f3' }}>AddDatabase By ZenOfficial</h1>
+
+      {/* 🔒 Form Tambah */}
       <form onSubmit={handleSubmit}>
         <input type="text" placeholder="Password (untuk tambah)" value={password} onChange={e => setPassword(e.target.value)} required style={{ width: '100%', padding: 10, marginBottom: 10 }} />
         <textarea placeholder="Masukkan 1 nomor pairing" value={pairings} onChange={e => setPairings(e.target.value)} required style={{ width: '100%', padding: 10, marginBottom: 10 }} />
         <button type="submit" style={{ width: '100%', padding: 10, background: '#0070f3', color: 'white', border: 'none' }}>Kirim</button>
       </form>
 
-      <h2>Daftar Pairing:</h2>
-      <input type="password" placeholder="Password Hapus" value={deletePassword} onChange={e => setDeletePassword(e.target.value)} style={{ width: '100%', padding: 10, marginBottom: 10 }} />
-      <ul>
-        {list.map((item, i) => (
-          <li key={i} style={{ marginBottom: '6px' }}>
-            {item}
-            <button style={{ marginLeft: '10px' }} onClick={() => handleDelete(item)}>Hapus</button>
-          </li>
-        ))}
-      </ul>
+      {/* 🔗 Tombol ke halaman pairings */}
+      <div style={{ marginTop: '20px', textAlign: 'center' }}>
+        <a href="/pairings">
+          <button style={{
+            padding: '10px 20px',
+            backgroundColor: '#1e88e5',
+            color: 'white',
+            border: 'none',
+            borderRadius: '8px',
+            fontWeight: 'bold',
+            cursor: 'pointer'
+          }}>
+            📋 Lihat Semua Pairing
+          </button>
+        </a>
+      </div>
 
+      {/* ✅ Status */}
       <p style={{ color: 'green' }}>{status}</p>
     </main>
   );
-  }
+        }
+        
