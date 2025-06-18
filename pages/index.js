@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import '../public/styles.css';
 
 export default function Home() {
   const [password, setPassword] = useState('');
@@ -21,17 +22,15 @@ export default function Home() {
   };
 
   return (
-    <main style={{ padding: 20 }}>
+    <main className="container">
       <h1>Add Data to GitHub</h1>
       <form onSubmit={handleSubmit}>
         <input type="text" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} required />
-        <br /><br />
         <textarea placeholder="Allowed Pairings, pisahkan koma" value={pairings} onChange={e => setPairings(e.target.value)} required />
-        <br /><br />
         <button type="submit">Kirim</button>
       </form>
       <p>{status}</p>
     </main>
   );
-      }
+    }
     
