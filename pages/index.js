@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import '../public/styles.css';
+import '../styles/styles.css';
 
 export default function Home() {
   const [password, setPassword] = useState('');
@@ -32,5 +32,5 @@ export default function Home() {
       <p>{status}</p>
     </main>
   );
-    }
+  }
     
