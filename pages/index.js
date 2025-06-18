@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import '../styles/styles.css';
 
 export default function Home() {
   const [password, setPassword] = useState('');
