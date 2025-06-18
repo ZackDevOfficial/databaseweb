@@ -35,7 +35,7 @@ export default async function handler(req, res) {
       parsed = JSON.parse(text);
     } catch (err) {
       return res.status(500).json({
-        message: '❌ Gagal parse respon dari GitHub',
+        message: '❌ Gagal parse respon',
         status,
         raw: text,
       });
@@ -43,7 +43,7 @@ export default async function handler(req, res) {
 
     if (!response.ok) {
       return res.status(status).json({
-        message: '❌ Gagal mengambil file dari GitHub',
+        message: '❌ Gagal mengambil file',
         detail: parsed,
         url,
         repo: githubRepo,
