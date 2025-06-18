@@ -45,3 +45,4 @@ export default async function handler(req, res) {
   const data = await updateRes.json();
   return res.status(200).json({ message: `✅ Sukses diupdate: ${data.content.html_url}` });
 }
+  
