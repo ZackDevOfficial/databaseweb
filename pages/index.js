@@ -60,7 +60,7 @@ export default function Home() {
 
   return (
     <main style={{ maxWidth: 400, margin: '30px auto', fontFamily: 'Arial' }}>
-      <h1 style={{ textAlign: 'center', color: '#0070f3' }}>Add Data to GitHub</h1>
+      <h1 style={{ textAlign: 'center', color: '#0070f3' }}>AddDatabase By ZenOfficial</h1>
       <form onSubmit={handleSubmit}>
         <input type="text" placeholder="Password (untuk tambah)" value={password} onChange={e => setPassword(e.target.value)} required style={{ width: '100%', padding: 10, marginBottom: 10 }} />
         <textarea placeholder="Masukkan 1 nomor pairing" value={pairings} onChange={e => setPairings(e.target.value)} required style={{ width: '100%', padding: 10, marginBottom: 10 }} />
