@@ -67,7 +67,24 @@ export default function PairingListPage() {
           </li>
         ))}
       </ul>
+
+      {/* Tombol kembali ke halaman utama */}
+      <div style={{ marginTop: '2rem', textAlign: 'center' }}>
+        <a href="/">
+          <button style={{
+            padding: '10px 20px',
+            backgroundColor: '#0070f3',
+            color: 'white',
+            border: 'none',
+            borderRadius: '8px',
+            fontWeight: 'bold',
+            fontSize: '16px',
+            cursor: 'pointer'
+          }}>
+            ⬅️ Kembali ke Beranda
+          </button>
+        </a>
+      </div>
     </div>
   );
-    }
-    
+}
