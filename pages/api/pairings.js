@@ -1,65 +1,73 @@
-export default async function handler(req, res) {
-  if (req.method !== 'GET') {
-    return res.status(405).json({ message: 'Method not allowed' });
-  }
+import { useEffect, useState } from 'react';
 
-  const githubToken = process.env.GITHUB_TOKEN;
-  const githubRepo = process.env.GITHUB_REPO;
-  const branch = process.env.GITHUB_BRANCH || 'main';
-  const filePath = 'ZenOfficialcode.json';
+export default function PairingListPage() {
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  if (!githubToken || !githubRepo) {
-    return res.status(500).json({
-      message: '❌ Environment variable tidak lengkap',
-      detail: {
-        GITHUB_TOKEN: !!githubToken,
-        GITHUB_REPO: !!githubRepo
+  useEffect(() => {
+    const fetchPairings = async () => {
+      try {
+        const res = await fetch('/api/pairings');
+        const result = await res.json();
+        if (res.ok) {
+          setData(result.allowed_pairings);
+        } else {
+          throw new Error(result.message || 'Gagal ambil data');
+        }
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
       }
-    });
-  }
+    };
 
-  try {
-    const url = `https://api.github.com/repos/${githubRepo}/contents/${filePath}?ref=${branch}`;
-    const response = await fetch(url, {
-      headers: {
-        Authorization: `Bearer ${githubToken}`,
-        Accept: 'application/vnd.github+json',
-      },
-    });
+    fetchPairings();
+  }, []);
 
-    const status = response.status;
-    const text = await response.text();
-    let parsed;
+  return (
+    <div style={{
+      maxWidth: '600px',
+      margin: '2rem auto',
+      padding: '1.5rem',
+      background: 'rgba(255,255,255,0.9)',
+      borderRadius: '12px',
+      boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+      fontFamily: 'Segoe UI, sans-serif',
+    }}>
+      <h1 style={{
+        textAlign: 'center',
+        color: '#1e88e5',
+        marginBottom: '1.5rem',
+        fontWeight: 700,
+      }}>📋 Daftar Pairing Aktif</h1>
 
-    try {
-      parsed = JSON.parse(text);
-    } catch (err) {
-      return res.status(500).json({
-        message: '❌ Gagal parse respon',
-        status,
-        raw: text,
-      });
+      {loading && <p>Loading daftar pairing...</p>}
+      {error && <p style={{ color: 'red' }}>{error}</p>}
+
+      <ul style={{ listStyle: 'none', padding: 0 }}>
+        {data.map((number, index) => (
+          <li
+            key={index}
+            style={{
+              backgroundColor: '#ffffff',
+              border: '1px solid #ccc',
+              padding: '12px 16px',
+              borderRadius: '8px',
+              marginBottom: '10px',
+              fontSize: '1rem',
+              fontWeight: '500',
+              boxShadow: '0 2px 6px rgba(0,0,0,0.05)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+            }}
+          >
+            <span style={{ fontWeight: 700, color: '#444' }}>{index + 1}.</span> {number}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
     }
-
-    if (!response.ok) {
-      return res.status(status).json({
-        message: '❌ Gagal mengambil file',
-        detail: parsed,
-        url,
-        repo: githubRepo,
-        branch,
-      });
-    }
-
-    const decoded = Buffer.from(parsed.content, 'base64').toString();
-    const json = JSON.parse(decoded);
-
-    return res.status(200).json({ allowed_pairings: json.allowed_pairings || [] });
-
-  } catch (err) {
-    return res.status(500).json({
-      message: '❌ Unexpected server error',
-      error: err.message,
-    });
-  }
-}
+        
