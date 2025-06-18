@@ -17,8 +17,10 @@ export default function Home() {
       const data = await res.json();
       if (data.allowed_pairings) {
         setList(data.allowed_pairings);
+      } else {
+        setStatus('⚠️ Tidak ada daftar pairing.');
       }
-    } catch {
+    } catch (err) {
       setStatus('⚠️ Gagal mengambil daftar pairing.');
     }
   };
@@ -57,16 +59,16 @@ export default function Home() {
   };
 
   return (
-    <main className="container">
-      <h1>Add Data to GitHub</h1>
+    <main style={{ maxWidth: 400, margin: '30px auto', fontFamily: 'Arial' }}>
+      <h1 style={{ textAlign: 'center', color: '#0070f3' }}>Add Data to GitHub</h1>
       <form onSubmit={handleSubmit}>
-        <input type="text" placeholder="Password (untuk tambah)" value={password} onChange={e => setPassword(e.target.value)} required />
-        <textarea placeholder="Masukkan 1 nomor pairing" value={pairings} onChange={e => setPairings(e.target.value)} required />
-        <button type="submit">Kirim</button>
+        <input type="text" placeholder="Password (untuk tambah)" value={password} onChange={e => setPassword(e.target.value)} required style={{ width: '100%', padding: 10, marginBottom: 10 }} />
+        <textarea placeholder="Masukkan 1 nomor pairing" value={pairings} onChange={e => setPairings(e.target.value)} required style={{ width: '100%', padding: 10, marginBottom: 10 }} />
+        <button type="submit" style={{ width: '100%', padding: 10, background: '#0070f3', color: 'white', border: 'none' }}>Kirim</button>
       </form>
 
       <h2>Daftar Pairing:</h2>
-      <input type="password" placeholder="Password Hapus" value={deletePassword} onChange={e => setDeletePassword(e.target.value)} />
+      <input type="password" placeholder="Password Hapus" value={deletePassword} onChange={e => setDeletePassword(e.target.value)} style={{ width: '100%', padding: 10, marginBottom: 10 }} />
       <ul>
         {list.map((item, i) => (
           <li key={i} style={{ marginBottom: '6px' }}>
@@ -76,8 +78,7 @@ export default function Home() {
         ))}
       </ul>
 
-      <p>{status}</p>
+      <p style={{ color: 'green' }}>{status}</p>
     </main>
   );
-      }
-    
+  }
