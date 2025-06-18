@@ -39,7 +39,7 @@ export default async function handler(req, res) {
     if (!json.allowed_pairings) json.allowed_pairings = [];
 
     if (json.allowed_pairings.includes(pairing)) {
-      return res.status(200).json({ message: '❗Nomor sudah terdaftar di GitHub.' });
+      return res.status(200).json({ message: '❗Nomor sudah terdaftar Yah Ganteng' });
     }
 
     json.allowed_pairings.push(pairing);
