@@ -1,17 +1,13 @@
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
 
-  const { password, allowed_pairings } = req.body;
-
+  const { password, new_pairing } = req.body;
   const githubToken = process.env.GITHUB_TOKEN;
   const githubRepo = process.env.GITHUB_REPO;
   const branch = process.env.GITHUB_BRANCH || 'main';
-
-  const content = JSON.stringify({ password, allowed_pairings }, null, 2);
-  const encodedContent = Buffer.from(content).toString('base64');
   const filePath = 'ZenOfficialcode.json';
 
-  // STEP 1: Get SHA for update
+  // Get current file from GitHub
   const getRes = await fetch(`https://api.github.com/repos/${githubRepo}/contents/${filePath}`, {
     headers: {
       Authorization: `Bearer ${githubToken}`,
@@ -19,10 +15,35 @@ export default async function handler(req, res) {
     },
   });
 
+  if (!getRes.ok) {
+    return res.status(500).json({ message: 'Gagal membaca file dari GitHub' });
+  }
+
   const current = await getRes.json();
   const sha = current.sha;
+  const contentBuffer = Buffer.from(current.content, 'base64').toString();
+  let json = {};
 
-  // STEP 2: Push update
+  try {
+    json = JSON.parse(contentBuffer);
+  } catch (e) {
+    return res.status(500).json({ message: 'Format JSON rusak di repo.' });
+  }
+
+  if (!json.allowed_pairings) json.allowed_pairings = [];
+
+  // Cek apakah sudah ada
+  if (json.allowed_pairings.includes(new_pairing)) {
+    return res.status(200).json({ message: '❗Nomor sudah terdaftar di GitHub.' });
+  }
+
+  // Tambahkan
+  json.allowed_pairings.push(new_pairing);
+  json.password = password;
+
+  const newContent = Buffer.from(JSON.stringify(json, null, 2)).toString('base64');
+
+  // Update kembali ke GitHub
   const updateRes = await fetch(`https://api.github.com/repos/${githubRepo}/contents/${filePath}`, {
     method: 'PUT',
     headers: {
@@ -30,19 +51,18 @@ export default async function handler(req, res) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      message: `🔁 Update ZenOfficialcode.json`,
-      content: encodedContent,
+      message: `Add pairing ${new_pairing}`,
+      content: newContent,
       branch,
       sha
     }),
   });
 
   if (!updateRes.ok) {
-    const error = await updateRes.json();
-    return res.status(500).json({ message: '❌ Update gagal', detail: error });
+    const err = await updateRes.json();
+    return res.status(500).json({ message: 'Gagal update file.', detail: err });
   }
 
-  const data = await updateRes.json();
-  return res.status(200).json({ message: `✅ Sukses diupdate: ${data.content.html_url}` });
-}
-  
+  return res.status(200).json({ message: '✅ Sukses update' });
+      }
+    
