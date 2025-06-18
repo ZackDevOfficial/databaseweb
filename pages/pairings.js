@@ -1,74 +1,68 @@
 import { useEffect, useState } from 'react';
 
-export default function PairingListPage() {
-  const [data, setData] = useState([]);
+export default function PairingsPage() {
+  const [pairings, setPairings] = useState([]);
+  const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchPairings = async () => {
       try {
         const res = await fetch('/api/pairings');
-        const result = await res.json();
-        if (res.ok) {
-          setData(result.allowed_pairings);
+        const data = await res.json();
+        if (res.ok || data.allowed_pairings) {
+          setPairings(data.allowed_pairings || []);
         } else {
-          throw new Error(result.message || 'Gagal ambil data');
+          setError(data.message || 'Gagal ambil data');
         }
       } catch (err) {
-        setError(err.message);
+        setError('Terjadi kesalahan saat mengambil data.');
       } finally {
         setLoading(false);
       }
     };
-
     fetchPairings();
   }, []);
 
   return (
-    <div style={{
+    <main style={{
       maxWidth: '600px',
       margin: '2rem auto',
-      padding: '1.5rem',
-      background: 'rgba(255,255,255,0.9)',
+      padding: '2rem',
+      backgroundColor: '#fff',
       borderRadius: '12px',
-      boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-      fontFamily: 'Segoe UI, sans-serif',
+      boxShadow: '0 0 10px rgba(0,0,0,0.1)',
+      fontFamily: 'Segoe UI, sans-serif'
     }}>
-      <h1 style={{
-        textAlign: 'center',
-        color: '#1e88e5',
-        marginBottom: '1.5rem',
-        fontWeight: 700,
-      }}>📋 Daftar Pairing Aktif</h1>
+      <h1 style={{ textAlign: 'center', color: '#1e88e5' }}>📋 Daftar Pairing</h1>
 
-      {loading && <p>Loading daftar pairing...</p>}
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-
-      <ul style={{ listStyle: 'none', padding: 0 }}>
-        {data.map((number, index) => (
-          <li
-            key={index}
-            style={{
-              backgroundColor: '#ffffff',
-              border: '1px solid #ccc',
-              padding: '12px 16px',
-              borderRadius: '8px',
+      {loading ? (
+        <p>⏳ Memuat...</p>
+      ) : error ? (
+        <p style={{ color: 'red' }}>{error}</p>
+      ) : pairings.length === 0 ? (
+        <p>Tidak ada pairing ditemukan.</p>
+      ) : (
+        <ul style={{ padding: 0, listStyle: 'none' }}>
+          {pairings.map((num, i) => (
+            <li key={i} style={{
+              backgroundColor: '#f0f4ff',
               marginBottom: '10px',
-              fontSize: '1rem',
-              fontWeight: '500',
-              boxShadow: '0 2px 6px rgba(0,0,0,0.05)',
+              padding: '10px 15px',
+              borderRadius: '8px',
+              fontWeight: 'bold',
+              color: '#333',
               display: 'flex',
               alignItems: 'center',
-              gap: '10px',
-            }}
-          >
-            <span style={{ fontWeight: 700, color: '#444' }}>{index + 1}.</span> {number}
-          </li>
-        ))}
-      </ul>
+              gap: '10px'
+            }}>
+              <span>{i + 1}.</span> {num}
+            </li>
+          ))}
+        </ul>
+      )}
 
-      {/* Tombol kembali ke halaman utama */}
+      {/* Tombol kembali */}
       <div style={{ marginTop: '2rem', textAlign: 'center' }}>
         <a href="/">
           <button style={{
@@ -78,13 +72,12 @@ export default function PairingListPage() {
             border: 'none',
             borderRadius: '8px',
             fontWeight: 'bold',
-            fontSize: '16px',
             cursor: 'pointer'
           }}>
             ⬅️ Kembali ke Beranda
           </button>
         </a>
       </div>
-    </div>
+    </main>
   );
-}
+  }
