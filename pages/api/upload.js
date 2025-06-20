@@ -10,10 +10,17 @@ export default async function handler(req, res) {
 
     const pairing = new_pairing.trim().replace(/,$/, "");
 
+    
+    const correctPassword = process.env.PAIRING_ADD_PASSWORD;
+    if (!password || password !== correctPassword) {
+      return res.status(403).json({ message: '❌ Password salah. Akses ditolak.' });
+    }
+
     if (!pairing || pairing === "") {
       return res.status(400).json({ message: '❌ Nomor tidak boleh kosong atau koma saja.' });
     }
 
+    
     const getRes = await fetch(`https://api.github.com/repos/${githubRepo}/contents/${filePath}`, {
       headers: {
         Authorization: `Bearer ${githubToken}`,
@@ -23,7 +30,7 @@ export default async function handler(req, res) {
 
     if (!getRes.ok) {
       const err = await getRes.json();
-      return res.status(500).json({ message: 'Gagal membaca file dari GitHub', error: err });
+      return res.status(500).json({ message: 'Gagal membaca file', error: err });
     }
 
     const current = await getRes.json();
@@ -42,8 +49,8 @@ export default async function handler(req, res) {
       return res.status(200).json({ message: '❗Nomor sudah terdaftar Yah Ganteng' });
     }
 
+    
     json.allowed_pairings.push(pairing);
-    json.password = password;
 
     const newContent = Buffer.from(JSON.stringify(json, null, 2)).toString('base64');
 
@@ -66,9 +73,9 @@ export default async function handler(req, res) {
       return res.status(500).json({ message: 'Gagal update file.', error: err });
     }
 
-    return res.status(200).json({ message: '✅ Sukses update' });
+    return res.status(200).json({ message: '✅ Sukses update pairing!' });
   } catch (err) {
     return res.status(500).json({ message: '❌ Terjadi kesalahan tak terduga.', error: err.message });
   }
-  }
+                                                  }
     
