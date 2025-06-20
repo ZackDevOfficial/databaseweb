@@ -4,6 +4,7 @@ export default function PairingsPage() {
   const [pairings, setPairings] = useState([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
+  const [deletePassword, setDeletePassword] = useState('');
 
   useEffect(() => {
     const fetchPairings = async () => {
@@ -24,11 +25,36 @@ export default function PairingsPage() {
     fetchPairings();
   }, []);
 
+  const handleDelete = async (pairing) => {
+    const confirm = window.confirm(`Yakin ingin menghapus pairing ${pairing}?`);
+    if (!confirm) return;
+
+    const password = prompt("Masukkan password hapus pairing:");
+    if (!password) return alert("❌ Password wajib diisi.");
+
+    const res = await fetch('/api/upload', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        password,
+        pairing_to_delete: pairing
+      })
+    });
+
+    const data = await res.json();
+    if (res.ok) {
+      setPairings(pairings.filter(p => p !== pairing));
+      alert('✅ Pairing berhasil dihapus!');
+    } else {
+      alert(data.message || '❌ Gagal menghapus pairing.');
+    }
+  };
+
   return (
     <main style={{
-      maxWidth: '600px',
+      maxWidth: '500px',
       margin: '2rem auto',
-      padding: '2rem',
+      padding: '1.5rem',
       backgroundColor: '#fff',
       borderRadius: '12px',
       boxShadow: '0 0 10px rgba(0,0,0,0.1)',
@@ -43,27 +69,48 @@ export default function PairingsPage() {
       ) : pairings.length === 0 ? (
         <p>Tidak ada pairing ditemukan.</p>
       ) : (
-        <ul style={{ padding: 0, listStyle: 'none' }}>
-          {pairings.map((num, i) => (
-            <li key={i} style={{
-              backgroundColor: '#f0f4ff',
-              marginBottom: '10px',
-              padding: '10px 15px',
-              borderRadius: '8px',
-              fontWeight: 'bold',
-              color: '#333',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '10px'
-            }}>
-              <span>{i + 1}.</span> {num}
-            </li>
-          ))}
-        </ul>
+        <div style={{
+          maxHeight: '350px',
+          overflowY: 'auto',
+          paddingRight: '5px',
+          marginTop: '1rem'
+        }}>
+          <ul style={{ padding: 0, listStyle: 'none' }}>
+            {pairings.map((num, i) => (
+              <li key={i} style={{
+                backgroundColor: '#f0f4ff',
+                marginBottom: '8px',
+                padding: '8px 12px',
+                borderRadius: '8px',
+                fontWeight: 'bold',
+                color: '#333',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+              }}>
+                <span>{i + 1}. {num}</span>
+                <button
+                  onClick={() => handleDelete(num)}
+                  style={{
+                    marginLeft: '10px',
+                    padding: '4px 8px',
+                    fontSize: '12px',
+                    backgroundColor: '#e53935',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: '5px',
+                    cursor: 'pointer'
+                  }}>
+                  Hapus
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
 
       {/* Tombol kembali */}
-      <div style={{ marginTop: '2rem', textAlign: 'center' }}>
+      <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
         <a href="/">
           <button style={{
             padding: '10px 20px',
@@ -81,3 +128,4 @@ export default function PairingsPage() {
     </main>
   );
   }
+        
