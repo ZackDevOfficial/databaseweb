@@ -73,7 +73,7 @@ export default async function handler(req, res) {
       return res.status(500).json({ message: 'Gagal update file.', error: err });
     }
 
-    return res.status(200).json({ message: '✅ Sukses update pairing!' });
+    return res.status(200).json({ message: '✅ Berhasil Menambah Nomer✓!' });
   } catch (err) {
     return res.status(500).json({ message: '❌ Terjadi kesalahan tak terduga.', error: err.message });
   }
